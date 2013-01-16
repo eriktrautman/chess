@@ -1,3 +1,5 @@
+require 'chess_pieces'
+
 class Chess
 
   def initialize
