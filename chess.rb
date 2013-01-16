@@ -93,5 +93,5 @@ end
 c = Chess.new
 c.populate_board
 c.print_board
-c.execute_move([1, 0], [2, 0])
-c.print_board
+
+puts "OUTPUT: #{c.board[0][1].theoretical_moves(0, 1)}"

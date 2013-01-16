@@ -6,7 +6,7 @@ class Piece
   BOARD_LENGTH = 8
   DIAGONALS = [[-1,-1],[-1,1],[1,1],[1,-1]]
   LEFT_RIGHT = [[1,0],[-1,0]]
-  FWD_BACK = [[0,1],[0-1]]
+  FWD_BACK = [[0,1],[0,-1]]
   KNIGHT = [[-2,1],[-2,-1],[-1,2],[-1,-2],[1,2],[1,-2],[2,1],[2,-1]]
 
   attr_accessor :moved
@@ -24,26 +24,29 @@ class Piece
   end
 
   def in_bounds?(coordinates)
-    (0..BOARD_LENGTH-1).include?(coordinates[0] && coordinates[1])
+    coordinates.all? { |coord| (0..BOARD_LENGTH-1).include?(coord) }
   end
 
-  # outputs an array containing subarrays of theoretical moves (in order outwards)
+#outputs an array containing subarrays of theoretical moves (in order outwards)
   def theoretical_moves(start_row, start_column)
     theoretical_moves = []
-    row, column = start_row, start_column
 
     self.moves.each do |move_coord|
+      row, column = start_row, start_column
       move_chain = []
-      while in_bounds?([row + move_coord[0],column + move_coord[1]]) && move_chain.size < self.max_distance
+      while in_bounds?([row + move_coord[0], column + move_coord[1]]) && move_chain.size < self.max_distance
         move_chain << [row + move_coord[0], column + move_coord[1]]
+        row += move_coord[0]
+        column += move_coord[1]
       end
       theoretical_moves << move_chain
     end
+    theoretical_moves
   end
 
 end
 
-# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 class King < Piece
   attr_reader :moves, :max_distance
@@ -96,5 +99,13 @@ class Knight < Piece
 end
 
 class Pawn < Piece
-  # GRRRRRR
+  def theoretical_moves(start_row, start_column)
+    #crazy logic going on here.
+  end
 end
+
+
+
+
+
+
