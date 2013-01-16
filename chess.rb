@@ -77,6 +77,7 @@ class Chess
       end
       puts
     end
+    puts
   end
 
   def execute_move(from_coord, to_coord)
