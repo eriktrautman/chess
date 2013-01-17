@@ -127,7 +127,29 @@ class Chess
   end
 
   def valid_move?(start_coords, end_coords)
+    piece = @board[start_coords[0]][start_coords[1]]
+    # Ask peace for its theoretical moves
+    theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
 
+    # is the end point included in them at all
+    #if so, make new array with just that one
+    move_seq = theoretical_moves.select { |sub_a| sub_a.include?(end_coords) }.first
+    return false if move_seq.size == 0
+
+    move_seq.each do |tile_coords|
+      tile = @board[tile_coords[0]][tile_coords[1]]
+      if tile_coords == end_coords
+        if tile.nil?
+          return true
+        elsif tile.color != @current_player.color
+          return true
+        else
+          return false
+        end
+      elsif !tile.nil?
+        return false
+      end
+    end
   end
 
   def toggle_current_player
