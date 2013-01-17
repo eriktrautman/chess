@@ -1,0 +1,23 @@
+class Player
+  attr_reader :color
+
+  def initialize(color)
+    @color = color
+  end
+
+  def get_location
+    choice = []
+    until is_valid_input_style?(choice)
+      choice = gets.chomp.split(',')
+    end
+    choice
+  end
+
+  def is_valid_input_style?(player_input)
+    player_input.length == 2 && player_input.all? { |num| (0..7).include?(num) }
+  end
+
+  #get input from player, check if it's in valid format
+  #then check to make sure it's on the board
+  #and check if the piece belongs to their color
+end

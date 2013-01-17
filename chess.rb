@@ -1,4 +1,5 @@
 require "./chess_pieces.rb"
+require "./chess_player.rb"
 
 class Chess
 
@@ -22,6 +23,32 @@ class Chess
   def initialize
     @board = []
     build_board
+    populate_board
+    @player1 = Player.new("white")
+    @player2 = Player.new("black")
+    @current_player = @player1
+  end
+
+  def play
+    #play the game until checkmate/victory
+    until game_over?
+
+      start_coord = []
+      end_coord = []
+
+      until start_coord_valid?(start_coord)
+        print "Start coordinates: "
+        start_coord = @current_player.get_location
+      end
+
+      until valid_move?(start_coord, end_coord)
+        print "End coordinates: "
+        end_coord = @current_player.get_location
+      end
+
+      execute_move(start_coord, end_coord)
+      toggle_current_player
+    end
   end
 
   def build_board
@@ -85,6 +112,31 @@ class Chess
     @board[from_coord[0]][from_coord[1]] = nil
   end
 
+  def start_coord_valid?(coordinates)
+    # No stupid stuff... is it my piece?
+    piece = @board[coordinates[0]][coordinates[1]]
+    if piece.nil?
+      puts "NO PEACE \u262E"
+      return false
+    elsif piece.color != @current_player.color
+      puts "Not yo' color!"
+      return false
+    else
+      true
+    end
+  end
+
+  def valid_move?(start_coords, end_coords)
+
+  end
+
+  def toggle_current_player
+    @current_player = @current_player == @player1 ? @player2 : @player1
+  end
+
+  def game_over?
+    false
+  end
 
 end
 
