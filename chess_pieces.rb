@@ -105,17 +105,15 @@ class Pawn < Piece
   def initialize(color)
     super(color)
   end
-  #check which color the pawn is - set to +/-
-  #can always move one space up/down
-  #if moved == false, theoretical moves.length == 2
-  #pass pawn board info
-  #pawn looks ahead L/R to determine if those are possible moves
-    #if spaces not nil && has enemy color, then possible
+
+  # Returns the pawn's possible moves, excluding moves that illegally interfere
+  # with existing or enemy pieces
   def theoretical_moves(start_row, start_column, board)
     moves = []#crazy logic going on here.
+
     if self.color == "white"
-      moves << [[start_row + 1, start_column]]
-      unless moved?
+      moves << [[start_row + 1, start_column]] if board[start_row + 1][start_column].nil?
+      if !moved? && board[start_row + 1][start_column].nil? && board[start_row + 2][start_column].nil?
         moves << [[start_row + 1, start_column], [start_row + 2, start_column]]
       end
       if !board[start_row + 1][start_column + 1].nil?
@@ -123,9 +121,10 @@ class Pawn < Piece
       elsif !board[start_row + 1][start_column - 1].nil?
         moves << [[start_row + 1][start_column - 1]]
       end
+
     elsif self.color == "black"
-      moves << [[start_row - 1, start_column]]
-      unless moved?
+      moves << [[start_row - 1, start_column]] if board[start_row - 1][start_column].nil?
+      if !moved? && board[start_row - 1][start_column].nil? && board[start_row - 2][start_column].nil?
         moves << [[start_row - 1, start_column], [start_row - 2, start_column]]
       end
       if !board[start_row - 1][start_column + 1].nil?

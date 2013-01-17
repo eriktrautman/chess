@@ -46,6 +46,7 @@ class Chess
       until valid_move?(start_coord, end_coord)
         puts "End coordinates"
         end_coord = @current_player.get_location
+        p "End Coords: #{end_coord.inspect}"
       end
 
       execute_move(start_coord, end_coord)
@@ -142,7 +143,7 @@ class Chess
     else
       theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
     end
-
+    p "Theoreticals: #{theoretical_moves.inspect}"
     # is the end point included in them at all
     #if so, make new array with just that one
     move_seq = theoretical_moves.select { |sub_a| sub_a.include?(end_coords) }.first
@@ -173,6 +174,16 @@ class Chess
   end
 
 end
+
+# NOTES
+# Infinite loop if choosing piece with no possible moves
+# Check
+# Checkmate
+  # Danger ZOOOOOOOONE!!!!
+# simple commands, eg. quit, save, change piece
+
+
+
 
 # SCRIPT
 
