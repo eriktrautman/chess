@@ -99,8 +99,42 @@ class Knight < Piece
 end
 
 class Pawn < Piece
-  def theoretical_moves(start_row, start_column)
-    #crazy logic going on here.
+
+  attr_reader :moves, :max_distance
+
+  def initialize(color)
+    super(color)
+  end
+  #check which color the pawn is - set to +/-
+  #can always move one space up/down
+  #if moved == false, theoretical moves.length == 2
+  #pass pawn board info
+  #pawn looks ahead L/R to determine if those are possible moves
+    #if spaces not nil && has enemy color, then possible
+  def theoretical_moves(start_row, start_column, board)
+    moves = []#crazy logic going on here.
+    if self.color == "white"
+      moves << [[start_row + 1, start_column]]
+      unless moved?
+        moves << [[start_row + 1, start_column], [start_row + 2, start_column]]
+      end
+      if !board[start_row + 1][start_column + 1].nil?
+        moves << [[start_row + 1,start_column + 1]]
+      elsif !board[start_row + 1][start_column - 1].nil?
+        moves << [[start_row + 1][start_column - 1]]
+      end
+    elsif self.color == "black"
+      moves << [[start_row - 1, start_column]]
+      unless moved?
+        moves << [[start_row - 1, start_column], [start_row - 2, start_column]]
+      end
+      if !board[start_row - 1][start_column + 1].nil?
+        moves << [[start_row - 1,start_column + 1]]
+      elsif !board[start_row - 1][start_column - 1].nil?
+        moves << [[start_row - 1][start_column - 1]]
+      end
+    end
+    moves
   end
 end
 

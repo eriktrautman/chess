@@ -8,7 +8,10 @@ class Player
   def get_location
     choice = []
     until is_valid_input_style?(choice)
-      choice = gets.chomp.split(',')
+      print "> "
+      choice = gets.chomp.split(',').map(&:to_i)
+      puts "Choice: #{choice}"
+      puts "INVALID INPUT. TRY AGAIN." unless is_valid_input_style?(choice)
     end
     choice
   end

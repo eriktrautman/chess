@@ -31,23 +31,26 @@ class Chess
 
   def play
     #play the game until checkmate/victory
-    until game_over?
 
+    until game_over?
+      puts "It's your turn, #{@current_player.color} Player!"
       start_coord = []
       end_coord = []
 
       until start_coord_valid?(start_coord)
-        print "Start coordinates: "
+        puts "Start coordinates"
         start_coord = @current_player.get_location
       end
+      puts "Move #{@board[start_coord[0]][start_coord[1]].class.to_s.upcase} where?"
 
       until valid_move?(start_coord, end_coord)
-        print "End coordinates: "
+        puts "End coordinates"
         end_coord = @current_player.get_location
       end
 
       execute_move(start_coord, end_coord)
       toggle_current_player
+      print_board
     end
   end
 
@@ -113,8 +116,11 @@ class Chess
   end
 
   def start_coord_valid?(coordinates)
+    return false if coordinates.size == 0
+
     # No stupid stuff... is it my piece?
     piece = @board[coordinates[0]][coordinates[1]]
+
     if piece.nil?
       puts "NO PEACE \u262E"
       return false
@@ -127,14 +133,20 @@ class Chess
   end
 
   def valid_move?(start_coords, end_coords)
+    return false if end_coords.size == 0
+
     piece = @board[start_coords[0]][start_coords[1]]
     # Ask peace for its theoretical moves
-    theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
+    if piece.is_a?(Pawn)
+      theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1], @board)
+    else
+      theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
+    end
 
     # is the end point included in them at all
     #if so, make new array with just that one
     move_seq = theoretical_moves.select { |sub_a| sub_a.include?(end_coords) }.first
-    return false if move_seq.size == 0
+    return false if move_seq.nil?
 
     move_seq.each do |tile_coords|
       tile = @board[tile_coords[0]][tile_coords[1]]
@@ -167,5 +179,6 @@ end
 c = Chess.new
 c.populate_board
 c.print_board
+c.play
 
-puts "OUTPUT: #{c.board[0][1].theoretical_moves(0, 1)}"
+#puts "OUTPUT: #{c.board[0][1].theoretical_moves(0, 1)}"
