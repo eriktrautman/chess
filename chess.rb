@@ -19,7 +19,10 @@ class Chess
     "blackPawn" => "\u265F"
   }
 
-  attr_reader :board
+  # Only added access to these to test RSpec... is there a better way to test them
+  # than making them accessible like that???
+  # Should just be attr_reader :board
+  attr_accessor :board, :current_player
 
   def initialize
     @board = []
@@ -35,7 +38,7 @@ class Chess
 
     until game_over?
       puts "It's your turn, #{@current_player.color} Player!"
-      puts "Coordinate format is X,Y (eg 1, 0)"
+      puts "Coordinate format is Y,X (eg 1, 0)"
       puts "'save' to save, 'quit' to quit, or 'reset' to switch pieces"
       start_coord = []
       end_coord = []
@@ -130,7 +133,8 @@ class Chess
   def print_board(coords=[])
     # cycle through the board, outputting " * " for nil and unicode for each piece otherwise
     print "  "
-    ("A".."H").each { |char| print " #{char} " }
+    (0..7).each { |char| print " #{char} " }
+    print " << X COORDINATE"
     puts
     8.times do |row|
       print "#{row} "
@@ -148,6 +152,7 @@ class Chess
       end
       puts
     end
+    puts "^ Y COORDINATE"
     puts
   end
 
@@ -224,7 +229,6 @@ class Chess
       tile = @board[tile_coords[0]][tile_coords[1]]
       if tile_coords == end_coords && ( tile.nil? || tile.color != piece.color )
         valid_move_chain << tile_coords
-        puts "MOVE CHAIN:: #{valid_move_chain.inspect}"
         return valid_move_chain
       elsif tile.nil?
         valid_move_chain << tile_coords
@@ -234,14 +238,14 @@ class Chess
     end
   end
 
-  def move_causes_check?(start_coord, end_coord)
-    execute_hypo_move(start_coord, end_coord)
+  def move_causes_check?(start_coords, end_coords)
+    execute_hypo_move(start_coords, end_coords)
     if check?
-      reverse_hypo_move(start_coord, end_coord)
+      reverse_hypo_move(start_coords, end_coords)
       puts "STOP! That move will get you killed!"
       return true
     end
-    reverse_hypo_move(start_coord, end_coord)
+    reverse_hypo_move(start_coords, end_coords)
     false
   end
 

@@ -2,7 +2,7 @@
 # 1/16/13
 
 class Piece
-#ask ned about way to change attrs to attr?
+
   BOARD_LENGTH = 8
   DIAGONALS = [[-1,-1],[-1,1],[1,1],[1,-1]]
   LEFT_RIGHT = [[1,0],[-1,0]]
@@ -27,7 +27,7 @@ class Piece
     coordinates.all? { |coord| (0..BOARD_LENGTH-1).include?(coord) }
   end
 
-#outputs an array containing subarrays of theoretical moves (in order outwards)
+  # outputs an array containing subarrays of theoretical moves (in order outwards)
   def theoretical_moves(start_row, start_column)
     theoretical_moves = []
 
