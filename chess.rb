@@ -111,9 +111,24 @@ class Chess
     puts
   end
 
-  def execute_move(from_coord, to_coord)
-    @board[to_coord[0]][to_coord[1]] = @board[from_coord[0]][from_coord[1]]
-    @board[from_coord[0]][from_coord[1]] = nil
+  def execute_move(from_coords, to_coords)
+    @board[to_coords[0]][to_coords[1]] = @board[from_coords[0]][from_coords[1]]
+    @board[from_coords[0]][from_coords[1]] = nil
+  end
+
+  # Will execute a move in such a way that it is reversible
+  # by storing any piece that was killed off to the side in 'purgatory'
+  def execute_hypo_move(from_coords, to_coords)
+    @piece_purgatory = @board[to_coords[0]][to_coords[1]]
+    @board[to_coords[0]][to_coords[1]] = @board[from_coords[0]][from_coords[1]]
+    @board[from_coords[0]][from_coords[1]] = nil
+  end
+
+  # Will undo a hypothetical move by bringing back any piece that is in purgatory
+  def reverse_hypo_move(from_coords, to_coords)
+    @board[from_coords[0]][from_coords[1]] = @board[to_coords[0]][to_coords[1]]
+    @board[to_coords[0]][to_coords[1]] = @piece_purgatory
+    @piece_purgatory = nil
   end
 
   def start_coord_valid?(coordinates)
@@ -133,22 +148,26 @@ class Chess
     end
   end
 
+  # checks if the piece sitting at those start coordinates can make a valid
+  # and unobstructed path to an open square or enemy piece at the end coordinates
   def valid_move?(start_coords, end_coords)
-    return false if end_coords.size == 0
+    return false if end_coords.size == 0 # validate user input
 
     piece = @board[start_coords[0]][start_coords[1]]
-    # Ask peace for its theoretical moves
+    puts "In valid_move, piece is a #{piece.class}"
+
     if piece.is_a?(Pawn)
       theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1], @board)
     else
       theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
     end
-    p "Theoreticals: #{theoretical_moves.inspect}"
-    # is the end point included in them at all
-    #if so, make new array with just that one
+
+    # pull out any theoretical move sequence that actually crosses our end coordinates
     move_seq = theoretical_moves.select { |sub_a| sub_a.include?(end_coords) }.first
+    puts "Move sequence is #{move_seq.inspect}"
     return false if move_seq.nil?
 
+    # check to make sure there are no obstructions and end point is empty or enemy
     move_seq.each do |tile_coords|
       tile = @board[tile_coords[0]][tile_coords[1]]
       if tile_coords == end_coords
@@ -165,11 +184,50 @@ class Chess
     end
   end
 
+  def current_player_king_coordinates
+    8.times do |row|
+      8.times do |col|
+        tile = @board[row][col]
+        if tile && tile.color == @current_player.color && tile.is_a?(King)
+          return [row, col]
+        end
+      end
+    end
+  end
+
+
   def toggle_current_player
     @current_player = @current_player == @player1 ? @player2 : @player1
   end
 
   def game_over?
+    if check?
+      puts "You're in check!"
+      return true
+      #return true if checkmate?
+    end
+    puts "NOT IN CHECK"
+    false
+  end
+
+  # determines if any of an opponent's pieces have a valid path to our king
+  def check?
+    king_coords = current_player_king_coordinates
+    puts "king coords are: #{king_coords}"
+
+    8.times do |row|
+      8.times do |col|
+        tile = @board[row][col]
+        if tile && tile.color != @current_player.color
+          puts "Found an enemy #{tile.class} piece at #{row}, #{col}!"
+          return true if valid_move?([row, col], king_coords)
+        end
+      end
+    end
+    false
+  end
+
+  def checkmate?
     false
   end
 
