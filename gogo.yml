@@ -1,0 +1,242 @@
+--- !ruby/object:Chess
+board:
+- - 
+  - 
+  - !ruby/object:Bishop
+    color: white
+    moved: false
+    moves: &70297693062040
+    - &70297693061980
+      - -1
+      - -1
+    - &70297693061760
+      - -1
+      - 1
+    - &70297693061540
+      - 1
+      - 1
+    - &70297693061200
+      - 1
+      - -1
+    max_distance: 8
+  - 
+  - !ruby/object:King
+    color: white
+    moved: false
+    moves:
+    - &70297693064040
+      - 1
+      - 0
+    - &70297693063600
+      - -1
+      - 0
+    - &70297693063360
+      - 0
+      - 1
+    - &70297693063140
+      - 0
+      - -1
+    - *70297693061980
+    - *70297693061760
+    - *70297693061540
+    - *70297693061200
+    max_distance: 1
+  - !ruby/object:Bishop
+    color: white
+    moved: false
+    moves: *70297693062040
+    max_distance: 8
+  - !ruby/object:Knight
+    color: white
+    moved: false
+    moves: &70297693058240
+    - - -2
+      - 1
+    - - -2
+      - -1
+    - - -1
+      - 2
+    - - -1
+      - -2
+    - - 1
+      - 2
+    - - 1
+      - -2
+    - - 2
+      - 1
+    - - 2
+      - -1
+    max_distance: 1
+  - !ruby/object:Rook
+    color: white
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    max_distance: 8
+- - !ruby/object:Rook
+    color: white
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    max_distance: 8
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - 
+  - !ruby/object:Queen
+    color: black
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    - *70297693061980
+    - *70297693061760
+    - *70297693061540
+    - *70297693061200
+    max_distance: 8
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - 
+  - 
+- - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Queen
+    color: white
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    - *70297693061980
+    - *70297693061760
+    - *70297693061540
+    - *70297693061200
+    max_distance: 8
+- - !ruby/object:Rook
+    color: black
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    max_distance: 8
+  - !ruby/object:Knight
+    color: black
+    moved: false
+    moves: *70297693058240
+    max_distance: 1
+  - 
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - 
+  - 
+  - !ruby/object:Bishop
+    color: black
+    moved: false
+    moves: *70297693062040
+    max_distance: 8
+  - 
+- - 
+  - !ruby/object:Knight
+    color: white
+    moved: false
+    moves: *70297693058240
+    max_distance: 1
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - 
+  - 
+  - 
+  - 
+- - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+- - 
+  - 
+  - 
+  - 
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - 
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+- - 
+  - 
+  - 
+  - 
+  - !ruby/object:King
+    color: black
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    - *70297693061980
+    - *70297693061760
+    - *70297693061540
+    - *70297693061200
+    max_distance: 1
+  - !ruby/object:Bishop
+    color: black
+    moved: false
+    moves: *70297693062040
+    max_distance: 8
+  - !ruby/object:Knight
+    color: black
+    moved: false
+    moves: *70297693058240
+    max_distance: 1
+  - !ruby/object:Rook
+    color: black
+    moved: false
+    moves:
+    - *70297693064040
+    - *70297693063600
+    - *70297693063360
+    - *70297693063140
+    max_distance: 8
+player1: !ruby/object:Player
+  color: white
+player2: &70297692863120 !ruby/object:Player
+  color: black
+current_player: *70297692863120
+piece_purgatory: 

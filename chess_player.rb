@@ -5,12 +5,16 @@ class Player
     @color = color
   end
 
-  def get_location
+  def get_user_input
     choice = []
     until is_valid_input_style?(choice)
       print "> "
-      choice = gets.chomp.split(',').map(&:to_i)
-      puts "Choice: #{choice}"
+      choice = gets.chomp
+      if ['reset', 'save', 'quit'].include?(choice)
+        return choice
+      end
+
+      choice = choice.split(',').map(&:to_i)
       puts "INVALID INPUT. TRY AGAIN." unless is_valid_input_style?(choice)
     end
     choice

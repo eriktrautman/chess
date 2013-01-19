@@ -1,5 +1,6 @@
 require "./chess_pieces.rb"
 require "./chess_player.rb"
+require 'yaml'
 
 class Chess
 
@@ -30,22 +31,22 @@ class Chess
   end
 
   def play
-    #play the game until checkmate/victory
+    print_board
 
     until game_over?
       puts "It's your turn, #{@current_player.color} Player!"
+      puts "Coordinate format is X,Y (eg 1, 0)"
+      puts "'save' to save, 'quit' to quit, or 'reset' to switch pieces"
       start_coord = []
       end_coord = []
-
       start_coord = get_start_coordinates
 
-      until valid_move?(start_coord, end_coord)
-        puts "End coordinates"
-        end_coord = @current_player.get_location
+      until valid_move?(start_coord, end_coord) && !move_causes_check?(start_coord, end_coord)
+        puts "END COORDINATES"
+        end_coord = @current_player.get_user_input
 
-        # escape back to getting start coords with '[666]'
-        start_coord = get_start_coordinates if end_coord == [666]
-        p "End Coords: #{end_coord.inspect}"
+        # allow player to switch pieces by typing 'reset'
+        start_coord = get_start_coordinates if do_special_input_stuff(end_coord) == "reset"
       end
 
       execute_move(start_coord, end_coord)
@@ -54,16 +55,41 @@ class Chess
     end
   end
 
+
+  # <<<<<<<<<<<<<<<<<<<< INPUT METHODS >>>>>>>>>>>>>>>>>>>>>>
+
+  #terrible, terrible input handling - a relic of a much simpler version of the game
+  #learning so many lessons about big projects here.
+  def do_special_input_stuff(input)
+    case input
+    when "save"
+      save
+      []
+    when "reset"
+      puts "Choose different piece:"
+      "reset"
+    when "quit"
+      puts "QUITTING"
+      exit
+    else
+      false
+    end
+  end
+
+  # why does this happen somewhere other than end coordinates?
   def get_start_coordinates
     start_coord = []
     until start_coord_valid?(start_coord)
-      puts "Start coordinates"
-      start_coord = @current_player.get_location
+      puts "START COORDINATES"
+      start_coord = @current_player.get_user_input
+      start_coord = [] if ["reset", "save", []].include?(do_special_input_stuff(start_coord)) #hackhackhack
     end
     print_board(start_coord)
     puts "Move #{@board[start_coord[0]][start_coord[1]].class.to_s.upcase} where?"
     return start_coord
   end
+
+  # <<<<<<<<<<<<<<<<<<<< INITIALIZATION METHODS >>>>>>>>>>>>>>>>>>>>>>
 
   def build_board
     8.times do
@@ -125,6 +151,12 @@ class Chess
     puts
   end
 
+  def toggle_current_player
+    @current_player = @current_player == @player1 ? @player2 : @player1
+  end
+
+  # <<<<<<<<<<<<<<<<<<<< MOVEMENT METHODS >>>>>>>>>>>>>>>>>>>>>>
+
   def execute_move(from_coords, to_coords)
     @board[to_coords[0]][to_coords[1]] = @board[from_coords[0]][from_coords[1]]
     @board[from_coords[0]][from_coords[1]] = nil
@@ -145,8 +177,11 @@ class Chess
     @piece_purgatory = nil
   end
 
+
+  # <<<<<<<<<<<<<<<<<<<< MOVE VALIDATION METHODS >>>>>>>>>>>>>>>>>>>>>>
+
   def start_coord_valid?(coordinates)
-    return false if coordinates.size == 0
+    return false if coordinates.empty?
 
     # No stupid stuff... is it my piece?
     piece = @board[coordinates[0]][coordinates[1]]
@@ -199,7 +234,20 @@ class Chess
     end
   end
 
-  def current_player_king_coordinates
+  def move_causes_check?(start_coord, end_coord)
+    execute_hypo_move(start_coord, end_coord)
+    if check?
+      reverse_hypo_move(start_coord, end_coord)
+      puts "STOP! That move will get you killed!"
+      return true
+    end
+    reverse_hypo_move(start_coord, end_coord)
+    false
+  end
+
+  # <<<<<<<<<<<<<<<<<<<< GAME OVER METHODS >>>>>>>>>>>>>>>>>>>>>>
+
+    def current_player_king_coordinates
     8.times do |row|
       8.times do |col|
         tile = @board[row][col]
@@ -208,11 +256,6 @@ class Chess
         end
       end
     end
-  end
-
-
-  def toggle_current_player
-    @current_player = @current_player == @player1 ? @player2 : @player1
   end
 
   def game_over?
@@ -227,7 +270,6 @@ class Chess
   # determines if any of an opponent's pieces have a valid path to our king
   def check?
     king_coords = current_player_king_coordinates
-    puts "king coords are: #{king_coords}"
     return true unless build_DANGER_moves_array.empty?
   end
 
@@ -248,7 +290,6 @@ class Chess
         end
       end
     end
-    puts "DANGER ARRAY: #{danger_array}"
     danger_array
   end
 
@@ -266,17 +307,20 @@ class Chess
     king_row, king_col = current_player_king_coordinates
     theo_moves = @board[king_row][king_col].theoretical_moves(king_row, king_col)
     theo_moves.each do |end_coords|
-      if valid_move?([king_row, king_col], end_coords)
-        # test check condition on its hypothetical self. If NOT check, return TRUE!!!
-        execute_hypo_move([king_row, king_col], end_coords)
+      next if end_coords.empty?
+      if valid_move?([king_row, king_col], end_coords[0])
+
+        # test check condition on its hypothetical board one move in advance. If NOT check, return TRUE!!!
+        execute_hypo_move([king_row, king_col], end_coords[0])
         if !check?
           puts "WE HAVE AN ESCAPE!!! End coords are: #{end_coords}"
+          reverse_hypo_move([king_row, king_col], end_coords[0])
           return true
         end
-        reverse_hypo_move([king_row, king_col], end_coords)
+        reverse_hypo_move([king_row, king_col], end_coords[0])
+
       end
     end
-    puts "No escape is possible..."
     false
   end
 
@@ -288,40 +332,46 @@ class Chess
         tile = @board[row][col]
         if tile && tile.color == @current_player.color
           danger_array.first.each do |danger_tile|
-            return true if valid_move?([row, col], danger_tile)
+            #puts "testing kill/block for #{tile.class} from #{row},#{col} to #{danger_tile}!!!"
+            if valid_move?([row, col], danger_tile)
+              execute_hypo_move([row, col], danger_tile)
+              if !check?
+                puts "We have a possible kill/block move with #{tile.class}!!!"
+                reverse_hypo_move([row, col], danger_tile)
+                return true
+              end
+              reverse_hypo_move([row, col], danger_tile)
+            end
           end
         end
       end
     end
-    puts "No kill or block options available..."
     false
   end
 
 
+  # <<<<<<<<<<<<<<<<<<<< FILE OPERATIONS >>>>>>>>>>>>>>>>>>>>>>
+
+  def save
+    puts "Save file as:"
+    filename = gets.chomp
+
+    File.open(filename, 'w') do |f|
+      YAML.dump(self, f)
+    end
+  end
+
 end
 
-# NOTES
-# Checkmate
-  # Need to test that a kill or block will not expose king to another check
-# prevent any piece from exposing a check situation
-# commands: save, (something better than 666), load, etc
-# broken pawns
-# Illegal king escape move from check mate
 
-# TODO
-# YAML
-# Pawns
-# Test check/mate
-# more checking for check as per notes, including the hypothetical moves
+  # <<<<<<<<<<<<<<<<<<<< BEGIN GAME SCRIPT >>>>>>>>>>>>>>>>>>>>>>
 
+if $PROGRAM_NAME == __FILE__
 
-
-
-# SCRIPT
-
-c = Chess.new
-c.populate_board
-c.print_board
-c.play
-
-#puts "OUTPUT: #{c.board[0][1].theoretical_moves(0, 1)}"
+  case ARGV.count
+  when 0
+    Chess.new.play
+  when 1
+    YAML.load_file(ARGV.shift).play
+  end
+end

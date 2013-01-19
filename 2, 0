@@ -1,0 +1,251 @@
+--- !ruby/object:Chess
+board:
+- - !ruby/object:Rook
+    color: white
+    moved: false
+    moves:
+    - &70126968346560
+      - 1
+      - 0
+    - &70126968346540
+      - -1
+      - 0
+    - &70126968346500
+      - 0
+      - 1
+    - &70126968346480
+      - 0
+      - -1
+    max_distance: 8
+  - !ruby/object:Knight
+    color: white
+    moved: false
+    moves: &70126968346280
+    - - -2
+      - 1
+    - - -2
+      - -1
+    - - -1
+      - 2
+    - - -1
+      - -2
+    - - 1
+      - 2
+    - - 1
+      - -2
+    - - 2
+      - 1
+    - - 2
+      - -1
+    max_distance: 1
+  - !ruby/object:Bishop
+    color: white
+    moved: false
+    moves: &70126968346580
+    - &70126968346660
+      - -1
+      - -1
+    - &70126968346640
+      - -1
+      - 1
+    - &70126968346620
+      - 1
+      - 1
+    - &70126968346600
+      - 1
+      - -1
+    max_distance: 8
+  - !ruby/object:King
+    color: white
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    - *70126968346660
+    - *70126968346640
+    - *70126968346620
+    - *70126968346600
+    max_distance: 1
+  - !ruby/object:Queen
+    color: white
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    - *70126968346660
+    - *70126968346640
+    - *70126968346620
+    - *70126968346600
+    max_distance: 8
+  - !ruby/object:Bishop
+    color: white
+    moved: false
+    moves: *70126968346580
+    max_distance: 8
+  - !ruby/object:Knight
+    color: white
+    moved: false
+    moves: *70126968346280
+    max_distance: 1
+  - !ruby/object:Rook
+    color: white
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    max_distance: 8
+- - 
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+  - !ruby/object:Pawn
+    color: white
+    moved: false
+- - !ruby/object:Pawn
+    color: white
+    moved: false
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- - !ruby/object:Pawn
+    color: black
+    moved: false
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+- - 
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+  - !ruby/object:Pawn
+    color: black
+    moved: false
+- - !ruby/object:Rook
+    color: black
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    max_distance: 8
+  - !ruby/object:Knight
+    color: black
+    moved: false
+    moves: *70126968346280
+    max_distance: 1
+  - !ruby/object:Bishop
+    color: black
+    moved: false
+    moves: *70126968346580
+    max_distance: 8
+  - !ruby/object:Queen
+    color: black
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    - *70126968346660
+    - *70126968346640
+    - *70126968346620
+    - *70126968346600
+    max_distance: 8
+  - !ruby/object:King
+    color: black
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    - *70126968346660
+    - *70126968346640
+    - *70126968346620
+    - *70126968346600
+    max_distance: 1
+  - !ruby/object:Bishop
+    color: black
+    moved: false
+    moves: *70126968346580
+    max_distance: 8
+  - !ruby/object:Knight
+    color: black
+    moved: false
+    moves: *70126968346280
+    max_distance: 1
+  - !ruby/object:Rook
+    color: black
+    moved: false
+    moves:
+    - *70126968346560
+    - *70126968346540
+    - *70126968346500
+    - *70126968346480
+    max_distance: 8
+player1: &70126968147560 !ruby/object:Player
+  color: white
+player2: !ruby/object:Player
+  color: black
+current_player: *70126968147560
