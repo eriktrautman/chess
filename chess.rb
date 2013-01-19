@@ -154,7 +154,7 @@ class Chess
     return false if end_coords.size == 0 # validate user input
 
     piece = @board[start_coords[0]][start_coords[1]]
-    puts "In valid_move, piece is a #{piece.class}"
+    #puts "In valid_move, piece is a #{piece.class}"
 
     if piece.is_a?(Pawn)
       theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1], @board)
@@ -164,7 +164,7 @@ class Chess
 
     # pull out any theoretical move sequence that actually crosses our end coordinates
     move_seq = theoretical_moves.select { |sub_a| sub_a.include?(end_coords) }.first
-    puts "Move sequence is #{move_seq.inspect}"
+    puts "#{piece.class} move sequence is #{move_seq.inspect}"
     return false if move_seq.nil?
 
     # check to make sure there are no obstructions and end point is empty or enemy
@@ -173,7 +173,7 @@ class Chess
       if tile_coords == end_coords
         if tile.nil?
           return true
-        elsif tile.color != @current_player.color
+        elsif tile.color != piece.color
           return true
         else
           return false
@@ -219,7 +219,7 @@ class Chess
       8.times do |col|
         tile = @board[row][col]
         if tile && tile.color != @current_player.color
-          puts "Found an enemy #{tile.class} piece at #{row}, #{col}!"
+          #puts "Found an enemy #{tile.class} piece at #{row}, #{col}!"
           return true if valid_move?([row, col], king_coords)
         end
       end
