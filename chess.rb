@@ -37,15 +37,14 @@ class Chess
       start_coord = []
       end_coord = []
 
-      until start_coord_valid?(start_coord)
-        puts "Start coordinates"
-        start_coord = @current_player.get_location
-      end
-      puts "Move #{@board[start_coord[0]][start_coord[1]].class.to_s.upcase} where?"
+      start_coord = get_start_coordinates
 
       until valid_move?(start_coord, end_coord)
         puts "End coordinates"
         end_coord = @current_player.get_location
+
+        # escape back to getting start coords with '[666]'
+        start_coord = get_start_coordinates if end_coord == [666]
         p "End Coords: #{end_coord.inspect}"
       end
 
@@ -53,6 +52,17 @@ class Chess
       toggle_current_player
       print_board
     end
+  end
+
+  def get_start_coordinates
+    start_coord = []
+    until start_coord_valid?(start_coord)
+      puts "Start coordinates"
+      start_coord = @current_player.get_location
+    end
+    print_board(start_coord)
+    puts "Move #{@board[start_coord[0]][start_coord[1]].class.to_s.upcase} where?"
+    return start_coord
   end
 
   def build_board
@@ -91,7 +101,7 @@ class Chess
     [first_row, second_row]
   end
 
-  def print_board
+  def print_board(coords=[])
     # cycle through the board, outputting " * " for nil and unicode for each piece otherwise
     print "  "
     ("A".."H").each { |char| print " #{char} " }
@@ -103,7 +113,11 @@ class Chess
         if piece.nil?
           print " * "
         else
-          print " #{UNICODE_CHARS[piece.name]} "
+          if coords == [row,col]
+            print "[#{UNICODE_CHARS[piece.name]}]"
+          else
+            print " #{UNICODE_CHARS[piece.name]} "
+          end
         end
       end
       puts
@@ -118,16 +132,16 @@ class Chess
 
   # Will execute a move in such a way that it is reversible
   # by storing any piece that was killed off to the side in 'purgatory'
-  def execute_hypo_move(from_coords, to_coords)
-    @piece_purgatory = @board[to_coords[0]][to_coords[1]]
-    @board[to_coords[0]][to_coords[1]] = @board[from_coords[0]][from_coords[1]]
-    @board[from_coords[0]][from_coords[1]] = nil
+  def execute_hypo_move(original_coords, test_coords)
+    @piece_purgatory = @board[test_coords[0]][test_coords[1]]
+    @board[test_coords[0]][test_coords[1]] = @board[original_coords[0]][original_coords[1]]
+    @board[original_coords[0]][original_coords[1]] = nil
   end
 
   # Will undo a hypothetical move by bringing back any piece that is in purgatory
-  def reverse_hypo_move(from_coords, to_coords)
-    @board[from_coords[0]][from_coords[1]] = @board[to_coords[0]][to_coords[1]]
-    @board[to_coords[0]][to_coords[1]] = @piece_purgatory
+  def reverse_hypo_move(original_coords, test_coords)
+    @board[original_coords[0]][original_coords[1]] = @board[test_coords[0]][test_coords[1]]
+    @board[test_coords[0]][test_coords[1]] = @piece_purgatory
     @piece_purgatory = nil
   end
 
@@ -152,34 +166,35 @@ class Chess
   # and unobstructed path to an open square or enemy piece at the end coordinates
   def valid_move?(start_coords, end_coords)
     return false if end_coords.size == 0 # validate user input
+    return true unless valid_move_chain(start_coords, end_coords).empty?
+    false
+  end
 
+  # takes a start coord pair and end coord pair, and returns the move chain between them if valid
+  def valid_move_chain(start_coords, end_coords)
+    valid_move_chain = []
     piece = @board[start_coords[0]][start_coords[1]]
-    #puts "In valid_move, piece is a #{piece.class}"
 
     if piece.is_a?(Pawn)
-      theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1], @board)
+      all_potential_moves = piece.theoretical_moves(start_coords[0], start_coords[1], @board)
     else
-      theoretical_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
+      all_potential_moves = piece.theoretical_moves(start_coords[0], start_coords[1])
     end
 
-    # pull out any theoretical move sequence that actually crosses our end coordinates
-    move_seq = theoretical_moves.select { |sub_a| sub_a.include?(end_coords) }.first
-    puts "#{piece.class} move sequence is #{move_seq.inspect}"
-    return false if move_seq.nil?
+    intersecting_move_chain = all_potential_moves.select { |move_chain| move_chain.include?(end_coords) }.first
+    return [] if intersecting_move_chain.nil?
 
-    # check to make sure there are no obstructions and end point is empty or enemy
-    move_seq.each do |tile_coords|
+    #otherwise, step through the move chain looking for obstacles or other issues
+    intersecting_move_chain.each do |tile_coords|
       tile = @board[tile_coords[0]][tile_coords[1]]
-      if tile_coords == end_coords
-        if tile.nil?
-          return true
-        elsif tile.color != piece.color
-          return true
-        else
-          return false
-        end
-      elsif !tile.nil?
-        return false
+      if tile_coords == end_coords && ( tile.nil? || tile.color != piece.color )
+        valid_move_chain << tile_coords
+        puts "MOVE CHAIN:: #{valid_move_chain.inspect}"
+        return valid_move_chain
+      elsif tile.nil?
+        valid_move_chain << tile_coords
+      else
+        return []
       end
     end
   end
@@ -203,10 +218,9 @@ class Chess
   def game_over?
     if check?
       puts "You're in check!"
-      return true
-      #return true if checkmate?
+      return true if checkmate?
+      puts "...but not checkmate."
     end
-    puts "NOT IN CHECK"
     false
   end
 
@@ -214,31 +228,91 @@ class Chess
   def check?
     king_coords = current_player_king_coordinates
     puts "king coords are: #{king_coords}"
+    return true unless build_DANGER_moves_array.empty?
+  end
 
+  def build_DANGER_moves_array
+    king_coords = current_player_king_coordinates
+    danger_array = []
     8.times do |row|
       8.times do |col|
         tile = @board[row][col]
         if tile && tile.color != @current_player.color
           #puts "Found an enemy #{tile.class} piece at #{row}, #{col}!"
-          return true if valid_move?([row, col], king_coords)
+          valid_moves = valid_move_chain([row, col], king_coords)
+          unless valid_moves.empty?
+            #add threatening piece's position to start of danger_array
+            valid_moves.unshift([row, col])
+            danger_array << valid_moves
+          end
         end
       end
     end
-    false
+    puts "DANGER ARRAY: #{danger_array}"
+    danger_array
   end
 
   def checkmate?
+    danger_moves_array = build_DANGER_moves_array
+    if danger_moves_array.size == 1
+      return true unless escape_by_kill_or_block?(danger_moves_array) || move_king_escape?
+    else
+      return true unless move_king_escape?
+    end
+  end
+
+  # Tests whether the king has a valid move that removes the check situation
+  def move_king_escape?
+    king_row, king_col = current_player_king_coordinates
+    theo_moves = @board[king_row][king_col].theoretical_moves(king_row, king_col)
+    theo_moves.each do |end_coords|
+      if valid_move?([king_row, king_col], end_coords)
+        # test check condition on its hypothetical self. If NOT check, return TRUE!!!
+        execute_hypo_move([king_row, king_col], end_coords)
+        if !check?
+          puts "WE HAVE AN ESCAPE!!! End coords are: #{end_coords}"
+          return true
+        end
+        reverse_hypo_move([king_row, king_col], end_coords)
+      end
+    end
+    puts "No escape is possible..."
     false
   end
+
+  # tests whether the player in check can block it by moving another piece to an intervening tile
+  # or kill the threatening piece (without exposing a ------new check situation!!!!!!!!----)
+  def escape_by_kill_or_block?(danger_array)
+    8.times do |row|
+      8.times do |col|
+        tile = @board[row][col]
+        if tile && tile.color == @current_player.color
+          danger_array.first.each do |danger_tile|
+            return true if valid_move?([row, col], danger_tile)
+          end
+        end
+      end
+    end
+    puts "No kill or block options available..."
+    false
+  end
+
 
 end
 
 # NOTES
-# Infinite loop if choosing piece with no possible moves
-# Check
 # Checkmate
-  # Danger ZOOOOOOOONE!!!!
-# simple commands, eg. quit, save, change piece
+  # Need to test that a kill or block will not expose king to another check
+# prevent any piece from exposing a check situation
+# commands: save, (something better than 666), load, etc
+# broken pawns
+# Illegal king escape move from check mate
+
+# TODO
+# YAML
+# Pawns
+# Test check/mate
+# more checking for check as per notes, including the hypothetical moves
 
 
 

@@ -17,7 +17,7 @@ class Player
   end
 
   def is_valid_input_style?(player_input)
-    player_input.length == 2 && player_input.all? { |num| (0..7).include?(num) }
+    player_input.length == 2 && player_input.all? { |num| (0..7).include?(num) } || player_input == [666]
   end
 
   #get input from player, check if it's in valid format
